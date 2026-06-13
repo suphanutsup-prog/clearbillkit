@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="theme-color" content="#EAF7F6" />
+<title>เคลียร์บิล</title>
+<style>
+  :root {
+    --bg: #EAF7F6;
+    --surface: #FFFFFF;
+    --surface-2: #F2FAF9;
+    --line: #D6EFEC;
+    --ink: #2E4845;
+    --ink-dim: #93B5B1;
+    --accent: #5FC4BC;
+    --accent-soft: #D7F2EF;
+    --accent-deep: #2C8F89;
+    --accent-ink: #FFFFFF;
+    --get: #7FD8B5;
+    --owe: #FF9FB6;
+    --paper: #FFFFFF;
+    --paper-ink: #2E4845;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+  }
+  button, input { font-family: inherit; }
+  button { cursor: pointer; }
+  .cb-mono { font-family: ui-monospace, "SF Mono", "Menlo", "Roboto Mono", monospace; }
+  .cb-shell {
+    width: 100%;
+    max-width: 460px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .cb-header {
+    padding: 18px 18px 14px;
+    border-bottom: 1px solid var(--line);
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 10;
+  }
+  .cb-content { flex: 1; overflow-y: auto; padding: 16px 16px 100px; }
+  .cb-card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 14px; box-shadow: 0 2px 10px rgba(95,196,188,0.08); }
+  .cb-label { font-size: 13px; font-weight: 600; color: var(--ink-dim); margin-bottom: 2px; }
+  .cb-logo { width: 32px; height: 32px; border-radius: 11px; background: var(--accent); display: flex; align-items: center; justify-content: center; color: var(--accent-ink); }
+  .cb-nav { position: sticky; bottom: 0; display: flex; border-top: 1px solid var(--line); background: var(--surface); padding: 8px 8px max(8px, env(safe-area-inset-bottom)); }
+  .cb-nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 0; border-radius: 12px; color: var(--ink-dim); font-size: 11px; background: transparent; border: none; }
+  .cb-nav-btn.active { color: var(--accent-deep); }
+  .cb-input {
+    background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px;
+    color: var(--ink); padding: 10px 12px; font-size: 14px; width: 100%; outline: none;
+  }
+  .cb-input:focus { border-color: var(--accent); }
+  .cb-chip {
+    display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px;
+    background: var(--surface-2); border: 1px solid var(--line); font-size: 13px; color: var(--ink);
+  }
+  .cb-chip.selected { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-deep); font-weight: 600; }
+  .cb-avatar { width: 26px; height: 26px; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--ink); flex-shrink: 0; line-height: 1; }
+  .cb-btn-primary {
+    background: var(--accent); color: var(--accent-ink); border: none; border-radius: 14px;
+    padding: 12px 16px; font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
+    box-shadow: 0 4px 14px rgba(95,196,188,0.35);
+  }
+  .cb-btn-ghost { background: transparent; border: 1px solid var(--line); color: var(--ink); border-radius: 14px; padding: 10px 14px; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .cb-toggle { width: 42px; height: 24px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); position: relative; flex-shrink: 0; }
+  .cb-toggle.on { background: var(--accent-soft); border-color: var(--accent); }
+  .cb-toggle-dot { position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 999px; background: var(--ink-dim); transition: transform 0.15s ease, background 0.15s ease; }
+  .cb-toggle.on .cb-toggle-dot { transform: translateX(18px); background: var(--accent); }
+  .cb-sheet-overlay { position: fixed; inset: 0; background: rgba(46,72,69,0.35); display: flex; align-items: flex-end; justify-content: center; z-index: 50; }
+  .cb-sheet { width: 100%; max-width: 460px; background: var(--surface); border-radius: 22px 22px 0 0; padding: 18px; padding-bottom: max(18px, env(safe-area-inset-bottom)); max-height: 88vh; overflow-y: auto; border-top: 1px solid var(--line); }
+  .cb-receipt { background: var(--paper); color: var(--paper-ink); border-radius: 16px 16px 0 0; padding: 20px 18px 16px; }
+  .cb-receipt-edge {
+    height: 14px;
+    background:
+      linear-gradient(135deg, transparent 75%, var(--bg) 76%) 0 0/14px 14px,
+      linear-gradient(-135deg, transparent 75%, var(--bg) 76%) 0 0/14px 14px;
+    background-color: var(--paper);
+    background-repeat: repeat-x;
+  }
+  .cb-dashed { border-top: 1px dashed rgba(46,72,69,0.18); margin: 10px 0; }
+  .cb-toast {
+    position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+    background: var(--surface); border: 1px solid var(--line); color: var(--ink);
+    padding: 10px 16px; border-radius: 999px; font-size: 13px; z-index: 60; max-width: 90%;
+    box-shadow: 0 8px 24px rgba(46,72,69,0.18);
+  }
+  .cb-empty { text-align: center; padding: 24px 8px; color: var(--ink-dim); }
+  .cb-item-row { display: flex; align-items: stretch; gap: 8px; }
+  .cb-item-main { flex: 1; display: flex; align-items: center; justify-content: space-between; gap: 8px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; text-align: left; min-width: 0; }
+  .cb-item-name { font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cb-item-meta { font-size: 11px; color: var(--ink-dim); margin-top: 2px; }
+  .cb-item-delete { flex-shrink: 0; width: 40px; display: flex; align-items: center; justify-content: center; background: var(--surface-2); border: 1px solid var(--line); border-radius: 14px; color: var(--owe); }
+  .cb-tx-row { display: flex; align-items: center; justify-content: space-between; background: var(--surface-2); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; }
+  .cb-bill-row { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); text-align: left; }
+  .cb-checkbox { width: 18px; height: 18px; border-radius: 6px; border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--accent-ink); }
+  .cb-checkbox.checked { background: var(--accent); border-color: var(--accent); }
+  .cb-avatar-btn { background: transparent; border: 2px solid var(--surface); border-radius: 999px; padding: 0; line-height: 0; box-shadow: 0 0 0 1px var(--line); }
+  ::-webkit-scrollbar { width: 0; height: 0; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// ---------------------------------------------------------------------------
+// Constants & helpers
+// ---------------------------------------------------------------------------
+const STORAGE_KEY = 'clearbill_v2';
+
+const CURRENCIES = [
+  { code: 'THB', symbol: '\u0e3f' },
+  { code: 'USD', symbol: '$' },
+  { code: 'EUR', symbol: '\u20ac' },
+  { code: 'GBP', symbol: '\u00a3' },
+  { code: 'JPY', symbol: '\u00a5' },
+  { code: 'SGD', symbol: 'S$' },
+  { code: 'AUD', symbol: 'A$' },
+  { code: 'CNY', symbol: '\u00a5' },
+];
+const PALETTE = ['#5FC4BC', '#FFB3C6', '#FFD9A0', '#C9B6F0', '#A8E6CF', '#FFCAD4', '#B8E8FC', '#FFE8B8', '#D4F0C0', '#E0C3FC'];
+const COLOR_OPTIONS = ['#5FC4BC', '#FFB3C6', '#FFD9A0', '#C9B6F0', '#A8E6CF', '#FFCAD4', '#B8E8FC', '#FFE8B8', '#D4F0C0', '#E0C3FC', '#FF9FB6', '#9AD0F5'];
+const EMOJI_OPTIONS = ['\u{1F60A}', '\u{1F60E}', '\u{1F970}', '\u{1F63A}', '\u{1F436}', '\u{1F430}', '\u{1F98A}', '\u{1F43B}', '\u{1F43C}', '\u{1F984}', '\u{1F338}', '\u{1F353}', '\u{1F352}', '\u{1F369}', '\u{1F9CB}', '\u2615', '\u2B50', '\u{1F48E}', '\u{1F451}', '\u{1F380}', '\u{1F308}', '\u{1F98B}', '\u{1F349}', '\u{1F425}'];
+
+function currencyMeta(code) { return CURRENCIES.find(c => c.code === code) || CURRENCIES[0]; }
+
+function fmt(amount, currencyCode) {
+  const meta = currencyMeta(currencyCode);
+  const decimals = currencyCode === 'JPY' ? 0 : 2;
+  const num = Number(amount || 0);
+  const formatted = new Intl.NumberFormat('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format(Math.abs(num));
+  return `${num < 0 ? '-' : ''}${meta.symbol}${formatted}`;
+}
+
+let idSeed = 1;
+function newId(prefix) { return `${prefix}-${Date.now()}-${idSeed++}`; }
+
+function colorFor(key) {
+  let hash = 0;
+  const s = String(key || '');
+  for (let i = 0; i < s.length; i++) hash = (hash * 31 + s.charCodeAt(i)) >>> 0;
+  return PALETTE[hash % PALETTE.length];
+}
+function initials(name) { return (name || '?').trim().slice(0, 2).toUpperCase(); }
+
+function avatarHtml(person, size) {
+  size = size || 26;
+  person = person || {};
+  const bg = person.color || colorFor(person.id || person.name);
+  const content = person.emoji ? person.emoji : initials(person.name);
+  const fontSize = person.emoji ? Math.round(size * 0.62) : Math.round(size * 0.42);
+  return `<div class="cb-avatar" style="background:${bg};width:${size}px;height:${size}px;font-size:${fontSize}px">${content}</div>`;
+}
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function setPath(obj, path, value) {
+  const parts = path.split('.');
+  let o = obj;
+  for (let i = 0; i < parts.length - 1; i++) o = o[parts[i]];
+  o[parts[parts.length - 1]] = value;
+}
+
+// ---------------------------------------------------------------------------
+// Icons (simple inline SVGs)
+// ---------------------------------------------------------------------------
+function icon(name, size) {
+  size = size || 16;
+  const paths = {
+    plus: '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+    x: '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+    check: '<polyline points="20 6 9 17 4 12"/>',
+    trash: '<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>',
+    chevronRight: '<polyline points="9 18 15 12 9 6"/>',
+    chevronDown: '<polyline points="6 9 12 15 18 9"/>',
+    arrowRight: '<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>',
+    receipt: '<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="12" y2="15"/>',
+    wallet: '<path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/>',
+    history: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
+    save: '<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>',
+    rotate: '<path d="M3 12a9 9 0 1 0 2.64-6.36L3 8"/><path d="M3 3v5h5"/>',
+    checkCircle: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
+  };
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${paths[name] || ''}</svg>`;
+}
+
+// ---------------------------------------------------------------------------
+// State
+// ---------------------------------------------------------------------------
+function defaultBill(people) {
+  const ppl = (people && people.length) ? people : [{ id: newId('p'), name: '\u0e09\u0e31\u0e19' }];
+  return {
+    id: null,
+    billName: '\u0e1a\u0e34\u0e25\u0e43\u0e2b\u0e21\u0e48',
+    currency: 'THB',
+    vatEnabled: true,
+    vatPercent: 7,
+    scEnabled: true,
+    scPercent: 10,
+    discountAmount: 0,
+    people: ppl,
+    ownerId: ppl[0].id,
+    items: [],
+    createdAt: Date.now(),
+  };
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.currentBill) {
+        const base = { tab: 'bill', sheet: null, toast: null, newPersonName: '', billSummaryOpen: false, historyOpenId: null, selectedBillIds: null, bills: [], contacts: [] };
+        const merged = Object.assign(base, parsed, { sheet: null, toast: null });
+        if (!merged.contacts || merged.contacts.length === 0) {
+          const seen = {};
+          merged.contacts = [];
+          (merged.currentBill.people || []).forEach(p => {
+            const key = p.name.trim().toLowerCase();
+            if (!seen[key]) { seen[key] = true; merged.contacts.push({ id: newId('c'), name: p.name, color: p.color, emoji: p.emoji }); }
+          });
+          if (merged.contacts.length === 0) merged.contacts = [{ id: newId('c'), name: '\u0e09\u0e31\u0e19' }];
+        }
+        if (merged.currentBill.ownerId === undefined || merged.currentBill.ownerId === null || !merged.currentBill.people.some(p => p.id === merged.currentBill.ownerId)) {
+          merged.currentBill.ownerId = merged.currentBill.people[0].id;
+        }
+        if (merged.currentBill.discountAmount === undefined) merged.currentBill.discountAmount = 0;
+        return merged;
+      }
+    }
+  } catch (e) { /* ignore corrupted storage */ }
+  const contacts = [{ id: newId('c'), name: '\u0e09\u0e31\u0e19' }];
+  const person = { id: newId('p'), name: contacts[0].name };
+  return { contacts, currentBill: defaultBill([person]), bills: [], tab: 'bill', sheet: null, toast: null, newPersonName: '', billSummaryOpen: false, historyOpenId: null, selectedBillIds: null };
+}
+
+function saveState() {
+  try {
+    const persist = Object.assign({}, state);
+    delete persist.sheet;
+    delete persist.toast;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(persist));
+  } catch (e) { /* storage unavailable */ }
+}
+
+function syncContactStyle(person) {
+  if (!person) return;
+  const key = person.name.trim().toLowerCase();
+  const contact = state.contacts.find(c => c.name.trim().toLowerCase() === key);
+  if (contact) { contact.color = person.color; contact.emoji = person.emoji; }
+}
+
+let state = loadState();
+let toastTimer = null;
+
+// ---------------------------------------------------------------------------
+// Calculations
+// ---------------------------------------------------------------------------
+function calcBill(bill) {
+  const subtotal = bill.items.reduce((sum, it) => sum + (parseFloat(it.price) || 0), 0);
+  const sc = bill.scEnabled ? subtotal * (bill.scPercent / 100) : 0;
+  const vatBase = subtotal + sc;
+  const vat = bill.vatEnabled ? vatBase * (bill.vatPercent / 100) : 0;
+  const preDiscountTotal = subtotal + sc + vat;
+  const discountRaw = parseFloat(bill.discountAmount) || 0;
+  const discount = Math.min(Math.max(discountRaw, 0), preDiscountTotal);
+  const grandTotal = preDiscountTotal - discount;
+  const multiplier = subtotal > 0 ? grandTotal / subtotal : 1;
+
+  const ownerId = (bill.ownerId && bill.people.some(p => p.id === bill.ownerId)) ? bill.ownerId : (bill.people[0] && bill.people[0].id);
+
+  const owe = {};
+  bill.people.forEach(p => { owe[p.id] = 0; });
+  bill.items.forEach(item => {
+    const price = parseFloat(item.price) || 0;
+    const splitCount = item.splitWith.length || 1;
+    const perShare = (price / splitCount) * multiplier;
+    item.splitWith.forEach(pid => { if (owe[pid] !== undefined) owe[pid] += perShare; });
+  });
+
+  const nets = bill.people.map(p => {
+    const paid = p.id === ownerId ? grandTotal : 0;
+    return { id: p.id, name: p.name, color: p.color, emoji: p.emoji, owe: owe[p.id], paid, net: paid - owe[p.id] };
+  });
+
+  return { subtotal, sc, vat, discount, preDiscountTotal, grandTotal, multiplier, ownerId, nets };
+}
+
+function settleNets(nets) {
+  const debtors = nets.filter(n => n.net < -0.005).map(n => ({ name: n.name, amt: -n.net })).sort((a, b) => b.amt - a.amt);
+  const creditors = nets.filter(n => n.net > 0.005).map(n => ({ name: n.name, amt: n.net })).sort((a, b) => b.amt - a.amt);
+  const transactions = [];
+  let i = 0, j = 0;
+  while (i < debtors.length && j < creditors.length) {
+    const pay = Math.min(debtors[i].amt, creditors[j].amt);
+    transactions.push({ from: debtors[i].name, to: creditors[j].name, amount: pay });
+    debtors[i].amt -= pay;
+    creditors[j].amt -= pay;
+    if (debtors[i].amt < 0.005) i++;
+    if (creditors[j].amt < 0.005) j++;
+  }
+  return transactions;
+}
+
+function aggregateBills(bills) {
+  const groups = {};
+  bills.forEach(bill => {
+    const calc = calcBill(bill);
+    const cur = bill.currency;
+    if (!groups[cur]) groups[cur] = { currency: cur, subtotal: 0, sc: 0, vat: 0, grandTotal: 0, netByName: {}, displayName: {}, meta: {} };
+    const g = groups[cur];
+    g.subtotal += calc.subtotal;
+    g.sc += calc.sc;
+    g.vat += calc.vat;
+    g.grandTotal += calc.grandTotal;
+    calc.nets.forEach(n => {
+      const key = n.name.trim().toLowerCase();
+      if (!(key in g.netByName)) {
+        g.netByName[key] = 0;
+        g.displayName[key] = n.name.trim();
+        const contact = state.contacts.find(c => c.name.trim().toLowerCase() === key);
+        g.meta[key] = { color: (contact && contact.color) || n.color, emoji: (contact && contact.emoji) || n.emoji };
+      }
+      g.netByName[key] += n.net;
+    });
+  });
+  return Object.values(groups).map(g => {
+    const nets = Object.keys(g.netByName).map(k => Object.assign({ name: g.displayName[k], net: g.netByName[k] }, g.meta[k]));
+    const transactions = settleNets(nets);
+    return Object.assign({}, g, { nets, transactions });
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Render helpers (shared)
+// ---------------------------------------------------------------------------
+function receiptLineHtml(label, value) {
+  return `<div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px">
+    <span style="opacity:0.75">${escapeHtml(label)}</span><span class="cb-mono">${value}</span>
+  </div>`;
+}
+
+function transactionRowHtml(t, currency) {
+  return `<div class="cb-tx-row">
+    <div style="display:flex;align-items:center;gap:8px;font-size:13px">
+      <span style="color:var(--owe);font-weight:600">${escapeHtml(t.from)}</span>
+      ${icon('arrowRight', 14)}
+      <span style="color:var(--get);font-weight:600">${escapeHtml(t.to)}</span>
+    </div>
+    <span class="cb-mono" style="font-weight:700">${fmt(t.amount, currency)}</span>
+  </div>`;
+}
+
+function percentRowHtml(label, enabled, percent, toggleAction, bindPath) {
+  return `<div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+    <button data-action="${toggleAction}" style="display:flex;align-items:center;gap:10px;flex:1;background:transparent;border:none;color:var(--ink);padding:0">
+      <div class="cb-toggle ${enabled ? 'on' : ''}"><div class="cb-toggle-dot"></div></div>
+      <span style="font-size:14px">${label}</span>
+    </button>
+    <div style="display:flex;align-items:center;gap:4px;opacity:${enabled ? 1 : 0.4}">
+      <input type="number" inputmode="decimal" class="cb-input cb-mono" style="width:60px;padding:6px 8px;text-align:right" data-bind="${bindPath}" value="${percent}" ${enabled ? '' : 'disabled'} />
+      <span style="font-size:13px;color:var(--ink-dim)">%</span>
+    </div>
+  </div>`;
+}
+
+function discountRowHtml(bill) {
+  const sym = currencyMeta(bill.currency).symbol;
+  return `<div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+    <span style="font-size:14px">\u0e2a\u0e48\u0e27\u0e19\u0e25\u0e14 (\u0e22\u0e2d\u0e14\u0e40\u0e07\u0e07\u0e34\u0e19)</span>
+    <div style="display:flex;align-items:center;gap:4px">
+      <span class="cb-mono" style="font-size:13px;color:var(--ink-dim)">${sym}</span>
+      <input type="number" inputmode="decimal" class="cb-input cb-mono" style="width:90px;padding:6px 8px;text-align:right" data-bind="currentBill.discountAmount" value="${bill.discountAmount || 0}" />
+    </div>
+  </div>`;
+}
+
+function receiptHtml(bill, calc) {
+  return `
+  <div class="cb-receipt">
+    <div style="text-align:center;margin-bottom:10px">
+      <div style="font-weight:800;font-size:16px;letter-spacing:0.02em">${escapeHtml(bill.billName || '\u0e1a\u0e34\u0e25')}</div>
+      <div class="cb-mono" style="font-size:11px;opacity:0.6;margin-top:2px">${new Date(bill.createdAt || Date.now()).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' })}</div>
+    </div>
+    ${bill.items.map(it => `<div class="cb-mono" style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+      <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:65%">${escapeHtml(it.name)}</span>
+      <span>${fmt(it.price, bill.currency)}</span>
+    </div>`).join('')}
+    <div class="cb-dashed"></div>
+    ${receiptLineHtml('\u0e22\u0e2d\u0e14\u0e23\u0e27\u0e21\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23', fmt(calc.subtotal, bill.currency))}
+    ${bill.scEnabled ? receiptLineHtml(`Service charge (${bill.scPercent}%)`, fmt(calc.sc, bill.currency)) : ''}
+    ${bill.vatEnabled ? receiptLineHtml(`VAT (${bill.vatPercent}%)`, fmt(calc.vat, bill.currency)) : ''}
+    ${calc.discount > 0 ? receiptLineHtml('\u0e2a\u0e48\u0e27\u0e19\u0e25\u0e14', '-' + fmt(calc.discount, bill.currency)) : ''}
+    <div class="cb-dashed"></div>
+    <div style="display:flex;justify-content:space-between;font-weight:800;font-size:15px">
+      <span>\u0e23\u0e27\u0e21\u0e17\u0e31\u0e49\u0e07\u0e2b\u0e21\u0e14</span><span class="cb-mono">${fmt(calc.grandTotal, bill.currency)}</span>
+    </div>
+    <div class="cb-dashed"></div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      ${calc.nets.map(n => `<div style="display:flex;justify-content:space-between;font-size:12px">
+        <span style="display:flex;align-items:center;gap:6px">
+          ${avatarHtml(n, 18)}
+          ${escapeHtml(n.name)}${n.id === calc.ownerId ? ' (\u0e40\u0e08\u0e49\u0e32\u0e02\u0e2d\u0e07\u0e1a\u0e34\u0e25)' : ''} \u0e15\u0e49\u0e2d\u0e07\u0e08\u0e48\u0e32\u0e22
+        </span>
+        <span class="cb-mono">${fmt(n.owe, bill.currency)}</span>
+      </div>`).join('')}
+    </div>
+  </div>
+  <div class="cb-receipt-edge"></div>`;
+}
+
+function billSummaryHtml(bill, calc) {
+  const transactions = settleNets(calc.nets);
+  return `
+  <div style="margin-top:6px">${receiptHtml(bill, calc)}</div>
+  <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">
+    <div class="cb-label">\u0e2a\u0e23\u0e38\u0e1b\u0e40\u0e07\u0e34\u0e19\u0e17\u0e35\u0e48\u0e15\u0e49\u0e2d\u0e07\u0e42\u0e2d\u0e19</div>
+    ${transactions.length === 0
+      ? `<div class="cb-empty" style="padding:12px 8px">${icon('checkCircle', 22)}<div style="font-size:13px;margin-top:4px">\u0e17\u0e38\u0e01\u0e04\u0e19\u0e08\u0e48\u0e32\u0e22\u0e25\u0e07\u0e15\u0e31\u0e27\u0e1e\u0e2d\u0e14\u0e35 \u0e44\u0e21\u0e48\u0e15\u0e49\u0e2d\u0e07\u0e42\u0e2d\u0e19\u0e40\u0e1e\u0e34\u0e48\u0e21</div></div>`
+      : transactions.map(t => transactionRowHtml(t, bill.currency)).join('')}
+  </div>
+  <button class="cb-btn-primary" data-action="save-current-bill" style="margin-top:10px">
+    ${icon('save', 16)} ${bill.id ? '\u0e2d\u0e31\u0e1e\u0e40\u0e14\u0e15\u0e1a\u0e34\u0e25\u0e19\u0e35\u0e49\u0e43\u0e19\u0e1b\u0e23\u0e30\u0e27\u0e31\u0e15\u0e34' : '\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01\u0e1a\u0e34\u0e25\u0e19\u0e35\u0e49\u0e25\u0e07\u0e1b\u0e23\u0e30\u0e27\u0e31\u0e15\u0e34'}
+  </button>`;
+}
+
+function billTabItemsHtml(bill) {
+  if (bill.items.length === 0) {
+    return `<div class="cb-empty">
+      ${icon('receipt', 28)}
+      <div style="font-size:13px;margin-top:8px">\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e21\u0e35\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23 \u0e25\u0e2d\u0e07\u0e40\u0e1e\u0e08\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23\u0e41\u0e23\u0e01\u0e01\u0e31\u0e19\u0e40\u0e25\u0e22</div>
+    </div>`;
+  }
+  return bill.items.map(it => {
+    return `<div class="cb-item-row">
+      <button class="cb-item-main" data-action="open-edit-item" data-id="${it.id}">
+        <div style="flex:1;min-width:0;text-align:left">
+          <div class="cb-item-name">${escapeHtml(it.name)}</div>
+          <div class="cb-item-meta">\u0e2b\u0e32\u0e23 ${it.splitWith.length} \u0e04\u0e19</div>
+        </div>
+        <span class="cb-mono" style="font-weight:600">${fmt(it.price, bill.currency)}</span>
+      </button>
+      <button class="cb-item-delete" data-action="delete-item" data-id="${it.id}" aria-label="delete">${icon('trash', 16)}</button>
+    </div>`;
+  }).join('');
+}
+
+// ---------------------------------------------------------------------------
+// People & owner section
+// ---------------------------------------------------------------------------
+function peopleSectionHtml(bill, contacts) {
+  const billNames = {};
+  bill.people.forEach(p => { billNames[p.name.trim().toLowerCase()] = true; });
+  const suggestions = contacts.filter(c => !billNames[c.name.trim().toLowerCase()]);
+
+  return `
+  <div class="cb-card" style="display:flex;flex-direction:column;gap:10px">
+    <div class="cb-label" style="margin-bottom:0">\u0e04\u0e19\u0e17\u0e35\u0e48\u0e2b\u0e32\u0e23\u0e1a\u0e34\u0e25</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px">
+      ${bill.people.map(p => `<div class="cb-chip" style="padding-right:6px;padding-left:4px">
+        <button class="cb-avatar-btn" data-action="open-person-customize" data-id="${p.id}" title="\u0e1b\u0e23\u0e31\u0e1a\u0e41\u0e15\u0e48\u0e07">${avatarHtml(p, 24)}</button>
+        <span>${escapeHtml(p.name)}</span>
+        ${bill.people.length > 1 ? `<button data-action="remove-person" data-id="${p.id}" style="color:var(--ink-dim);display:flex;background:transparent;border:none">${icon('x', 13)}</button>` : ''}
+      </div>`).join('')}
+    </div>
+
+    ${suggestions.length > 0 ? `
+    <div class="cb-label" style="margin-bottom:0;margin-top:4px">\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e08\u0e32\u0e01\u0e23\u0e32\u0e22\u0e0a\u0e37\u0e48\u0e2d\u0e17\u0e35\u0e48\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01\u0e44\u0e27\u0e49</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px">
+      ${suggestions.map(c => `<div class="cb-chip" style="padding-right:6px">
+        <button data-action="add-contact-to-bill" data-id="${c.id}" style="display:flex;align-items:center;gap:6px;background:transparent;border:none;color:var(--ink);padding:0">
+          ${avatarHtml(c, 20)}
+          <span>${escapeHtml(c.name)}</span>
+        </button>
+        <button data-action="remove-contact" data-id="${c.id}" style="color:var(--ink-dim);display:flex;background:transparent;border:none">${icon('x', 13)}</button>
+      </div>`).join('')}
+    </div>` : ''}
+
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <input class="cb-input" id="new-person-input" placeholder="\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e0a\u0e37\u0e48\u0e2d\u0e04\u0e19\u0e43\u0e2b\u0e21\u0e48" data-bind="newPersonName" value="${escapeHtml(state.newPersonName || '')}" />
+      <button class="cb-btn-primary" style="width:auto;padding:0 14px" data-action="add-person">${icon('plus', 16)}</button>
+    </div>
+    <div style="font-size:11px;color:var(--ink-dim);line-height:1.5">
+      \u0e0a\u0e37\u0e48\u0e2d\u0e17\u0e35\u0e48\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e08\u0e30\u0e16\u0e39\u0e01\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01\u0e44\u0e27\u0e49 \u0e04\u0e23\u0e31\u0e49\u0e07\u0e2b\u0e19\u0e49\u0e32\u0e17\u0e33\u0e1a\u0e34\u0e25\u0e43\u0e2b\u0e21\u0e48\u0e2a\u0e32\u0e21\u0e32\u0e23\u0e16\u0e40\u0e25\u0e37\u0e2d\u0e01\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e44\u0e14\u0e49\u0e08\u0e32\u0e01\u0e23\u0e32\u0e22\u0e0a\u0e37\u0e48\u0e2d\u0e17\u0e35\u0e48\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01\u0e44\u0e27\u0e49 \u0e41\u0e15\u0e30\u0e23\u0e39\u0e1b\u0e2d\u0e27\u0e2d\u0e15\u0e32\u0e23\u0e4c\u0e02\u0e2d\u0e07\u0e41\u0e15\u0e48\u0e25\u0e30\u0e04\u0e19\u0e44\u0e14\u0e49\u0e40\u0e25\u0e22
+    </div>
+  </div>
+
+  <div class="cb-card" style="display:flex;flex-direction:column;gap:10px">
+    <div class="cb-label" style="margin-bottom:0">\u0e40\u0e08\u0e49\u0e32\u0e02\u0e2d\u0e07\u0e1a\u0e34\u0e25 (\u0e04\u0e19\u0e08\u0e48\u0e32\u0e22\u0e40\u0e07\u0e34\u0e19)</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px">
+      ${bill.people.map(p => `<button class="cb-chip ${bill.ownerId === p.id ? 'selected' : ''}" data-action="set-owner" data-id="${p.id}">
+        ${avatarHtml(p, 20)}
+        ${escapeHtml(p.name)} ${bill.ownerId === p.id ? icon('check', 13) : ''}
+      </button>`).join('')}
+    </div>
+    <div style="font-size:11px;color:var(--ink-dim);line-height:1.5">
+      \u0e40\u0e08\u0e49\u0e32\u0e02\u0e2d\u0e07\u0e1a\u0e34\u0e25\u0e04\u0e37\u0e2d\u0e04\u0e19\u0e17\u0e35\u0e48\u0e08\u0e48\u0e32\u0e22\u0e40\u0e07\u0e34\u0e19\u0e17\u0e31\u0e49\u0e07\u0e2b\u0e21\u0e14\u0e44\u0e1b\u0e01\u0e48\u0e2d\u0e19 \u0e23\u0e30\u0e1a\u0e1a\u0e08\u0e30\u0e04\u0e33\u0e19\u0e27\u0e13\u0e43\u0e2b\u0e49\u0e04\u0e19\u0e2d\u0e37\u0e48\u0e19\u0e43\u0e19\u0e1a\u0e34\u0e25\u0e42\u0e2d\u0e19\u0e40\u0e07\u0e34\u0e19\u0e04\u0e37\u0e19\u0e40\u0e08\u0e49\u0e32\u0e02\u0e2d\u0e07\u0e1a\u0e34\u0e25\u0e15\u0e32\u0e21\u0e2a\u0e48\u0e27\u0e19\u0e41\u0e1a\u0e48\u0e07\u0e02\u0e2d\u0e07\u0e41\u0e15\u0e48\u0e25\u0e30\u0e04\u0e19 \u0e42\u0e14\u0e22\u0e44\u0e21\u0e48\u0e15\u0e49\u0e2d\u0e07\u0e40\u0e25\u0e37\u0e2d\u0e01\u0e04\u0e19\u0e08\u0e48\u0e32\u0e22\u0e41\u0e22\u0e01\u0e17\u0e35\u0e25\u0e30\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23
+    </div>
+  </div>`;
+}
+
+// ---------------------------------------------------------------------------
+// Tab renderers
+// ---------------------------------------------------------------------------
+function renderBillTab() {
+  const bill = state.currentBill;
+  const calc = calcBill(bill);
+  return `
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <div class="cb-card" style="display:flex;flex-direction:column;gap:10px">
+      <input class="cb-input" style="font-size:16px;font-weight:700" data-bind="currentBill.billName" value="${escapeHtml(bill.billName)}" placeholder="\u0e0a\u0e37\u0e48\u0e2d\u0e1a\u0e34\u0e25 \u0e40\u0e0a\u0e48\u0e19 \u0e14\u0e34\u0e19\u0e40\u0e19\u0e2d\u0e23\u0e4c\u0e27\u0e31\u0e19\u0e40\u0e2a\u0e32\u0e23\u0e4c" />
+      <div>
+        <div class="cb-label">\u0e2a\u0e01\u0e38\u0e25\u0e40\u0e07\u0e34\u0e19</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          ${CURRENCIES.map(c => `<button class="cb-chip ${bill.currency === c.code ? 'selected' : ''}" data-action="set-currency" data-code="${c.code}">
+            <span class="cb-mono">${c.symbol}</span><span>${c.code}</span>
+          </button>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    ${peopleSectionHtml(bill, state.contacts)}
+
+    <div class="cb-card" style="display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="cb-label" style="margin-bottom:0">\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23\u0e2d\u0e32\u0e2b\u0e32\u0e23/\u0e04\u0e48\u0e32\u0e43\u0e0a\u0e49\u0e08\u0e48\u0e32\u0e22</div>
+        ${bill.items.length > 0 ? `<button data-action="clear-items" style="font-size:12px;color:var(--ink-dim);background:transparent;border:none">\u0e25\u0e49\u0e32\u0e07\u0e17\u0e31\u0e49\u0e07\u0e2b\u0e21\u0e14</button>` : ''}
+      </div>
+      ${billTabItemsHtml(bill)}
+      <button class="cb-btn-primary" data-action="open-new-item">${icon('plus', 16)} \u0e40\u0e1e\u0e34\u0e48\u0e21\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23</button>
+    </div>
+
+    <div class="cb-card" style="display:flex;flex-direction:column;gap:12px">
+      <div class="cb-label">\u0e04\u0e48\u0e32\u0e16\u0e23\u0e23\u0e21\u0e40\u0e19\u0e35\u0e22\u0e21\u0e41\u0e25\u0e30\u0e2a\u0e48\u0e27\u0e19\u0e25\u0e14</div>
+      ${percentRowHtml('Service charge', bill.scEnabled, bill.scPercent, 'toggle-sc', 'currentBill.scPercent')}
+      ${percentRowHtml('VAT (\u0e20\u0e32\u0e2a\u0e35\u0e21\u0e39\u0e25\u0e04\u0e48\u0e32\u0e40\u0e1e\u0e34\u0e48\u0e21)', bill.vatEnabled, bill.vatPercent, 'toggle-vat', 'currentBill.vatPercent')}
+      ${discountRowHtml(bill)}
+      <div style="font-size:11px;color:var(--ink-dim);line-height:1.5">
+        Service charge \u0e04\u0e34\u0e14\u0e08\u0e32\u0e01\u0e22\u0e2d\u0e14\u0e23\u0e27\u0e21\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23 \u0e41\u0e25\u0e49\u0e27 VAT \u0e04\u0e34\u0e14\u0e15\u0e48\u0e2d\u0e08\u0e32\u0e01\u0e22\u0e2d\u0e14\u0e23\u0e27\u0e21 + service charge \u0e2a\u0e48\u0e27\u0e19\u0e25\u0e14\u0e08\u0e30\u0e16\u0e39\u0e01\u0e2b\u0e31\u0e01\u0e08\u0e32\u0e01\u0e22\u0e2d\u0e14\u0e2a\u0e38\u0e17\u0e18\u0e34\u0e41\u0e25\u0e49\u0e27\u0e01\u0e23\u0e30\u0e08\u0e1a\u0e04\u0e37\u0e19\u0e43\u0e2b\u0e49\u0e17\u0e38\u0e01\u0e04\u0e19\u0e15\u0e32\u0e21\u0e2a\u0e31\u0e14\u0e2a\u0e48\u0e27\u0e19\u0e02\u0e2d\u0e07\u0e1a\u0e34\u0e25\u0e41\u0e15\u0e48\u0e25\u0e30\u0e04\u0e19
+      </div>
+    </div>
+
+    <div class="cb-card" style="display:flex;flex-direction:column;gap:10px">
+      <button data-action="toggle-bill-summary" style="display:flex;justify-content:space-between;align-items:center;width:100%;background:transparent;border:none;color:var(--ink);padding:0">
+        <span class="cb-label" style="margin:0">\u0e2a\u0e23\u0e38\u0e1b\u0e1a\u0e34\u0e25\u0e19\u0e35\u0e49</span>
+        <span style="display:flex;align-items:center;gap:8px">
+          <span class="cb-mono" style="font-weight:700">${fmt(calc.grandTotal, bill.currency)}</span>
+          <span style="display:flex;${state.billSummaryOpen ? 'transform:rotate(180deg)' : ''}">${icon('chevronDown', 16)}</span>
+        </span>
+      </button>
+      ${state.billSummaryOpen ? billSummaryHtml(bill, calc) : ''}
+    </div>
+  </div>`;
+}
+
+function renderAggregateTab() {
+  if (state.bills.length === 0) {
+    return `<div class="cb-empty" style="padding-top:60px">
+      ${icon('receipt', 28)}
+      <div style="font-size:13px;margin-top:8px">\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e21\u0e35\u0e1a\u0e34\u0e25\u0e17\u0e35\u0e48\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01\u0e44\u0e27\u0e49</div>
+      <div style="font-size:12px;margin-top:4px">\u0e01\u0e14\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01\u0e1a\u0e34\u0e25\u0e17\u0e35\u0e48\u0e41\u0e17\u0e47\u0e1a "\u0e1a\u0e34\u0e25" \u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e19\u0e33\u0e21\u0e32\u0e23\u0e27\u0e21\u0e22\u0e2d\u0e14\u0e17\u0e35\u0e48\u0e19\u0e35\u0e48</div>
+    </div>`;
+  }
+  const selected = state.selectedBillIds === null ? state.bills.map(b => b.id) : state.selectedBillIds;
+  const selectedBills = state.bills.filter(b => selected.includes(b.id));
+  const groups = aggregateBills(selectedBills);
+
+  return `
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <div class="cb-card" style="display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="cb-label" style="margin-bottom:0">\u0e40\u0e25\u0e37\u0e2d\u0e01\u0e1a\u0e34\u0e25\u0e17\u0e35\u0e48\u0e08\u0e30\u0e23\u0e27\u0e21\u0e22\u0e2d\u0e14</div>
+        <div style="display:flex;gap:10px">
+          <button data-action="select-all-bills" style="font-size:12px;color:var(--accent-deep);background:transparent;border:none">\u0e40\u0e25\u0e37\u0e2d\u0e01\u0e17\u0e31\u0e49\u0e07\u0e2b\u0e21\u0e14</button>
+          <button data-action="select-none-bills" style="font-size:12px;color:var(--ink-dim);background:transparent;border:none">\u0e44\u0e21\u0e48\u0e40\u0e25\u0e37\u0e2d\u0e01</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${state.bills.map(b => {
+          const calc = calcBill(b);
+          const checked = selected.includes(b.id);
+          return `<button class="cb-bill-row" data-action="toggle-bill-selection" data-id="${b.id}">
+            <div class="cb-checkbox ${checked ? 'checked' : ''}">${checked ? icon('check', 12) : ''}</div>
+            <div style="flex:1;min-width:0;text-align:left">
+              <div style="font-weight:600;font-size:13px">${escapeHtml(b.billName)}</div>
+              <div style="font-size:11px;color:var(--ink-dim)">${new Date(b.createdAt).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' })}</div>
+            </div>
+            <span class="cb-mono" style="font-weight:600">${fmt(calc.grandTotal, b.currency)}</span>
+          </button>`;
+        }).join('')}
+      </div>
+    </div>
+
+    ${selectedBills.length === 0
+      ? `<div class="cb-empty"><div style="font-size:13px">\u0e40\u0e25\u0e37\u0e2d\u0e01\u0e1a\u0e34\u0e25\u0e14\u0e49\u0e32\u0e19\u0e1a\u0e19\u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e14\u0e39\u0e22\u0e2d\u0e14\u0e23\u0e27\u0e21</div></div>`
+      : groups.map(g => aggregateGroupHtml(g)).join('')}
+  </div>`;
+}
+
+function aggregateGroupHtml(g) {
+  return `
+  <div class="cb-card" style="display:flex;flex-direction:column;gap:10px">
+    <div class="cb-label">\u0e23\u0e27\u0e21\u0e22\u0e2d\u0e14 \u00b7 ${g.currency}</div>
+    <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:800">
+      <span>\u0e22\u0e2d\u0e14\u0e23\u0e27\u0e21\u0e17\u0e31\u0e49\u0e07\u0e2b\u0e21\u0e14</span><span class="cb-mono">${fmt(g.grandTotal, g.currency)}</span>
+    </div>
+    <div class="cb-dashed" style="border-color:var(--line)"></div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      ${g.nets.map(n => `<div style="display:flex;justify-content:space-between;font-size:12.5px">
+        <span style="display:flex;align-items:center;gap:6px">
+          ${avatarHtml(n, 18)}
+          ${escapeHtml(n.name)}
+        </span>
+        <span class="cb-mono" style="color:${n.net < -0.005 ? 'var(--owe)' : n.net > 0.005 ? 'var(--get)' : 'var(--ink-dim)'}">
+          ${n.net < -0.005 ? '\u0e15\u0e49\u0e2d\u0e07\u0e08\u0e48\u0e32\u0e22' : n.net > 0.005 ? '\u0e44\u0e14\u0e49\u0e04\u0e37\u0e19' : '\u0e1e\u0e2d\u0e14\u0e35'} ${fmt(Math.abs(n.net), g.currency)}
+        </span>
+      </div>`).join('')}
+    </div>
+    <div class="cb-dashed" style="border-color:var(--line)"></div>
+    <div class="cb-label" style="margin-bottom:0">\u0e2a\u0e23\u0e38\u0e1b\u0e40\u0e07\u0e34\u0e19\u0e17\u0e35\u0e48\u0e15\u0e49\u0e2d\u0e07\u0e42\u0e2d\u0e19</div>
+    ${g.transactions.length === 0
+      ? `<div class="cb-empty" style="padding:12px 8px">${icon('checkCircle', 22)}<div style="font-size:13px;margin-top:4px">\u0e25\u0e07\u0e15\u0e31\u0e27\u0e1e\u0e2d\u0e14\u0e35 \u0e44\u0e21\u0e48\u0e15\u0e49\u0e2d\u0e07\u0e42\u0e2d\u0e19\u0e40\u0e1e\u0e34\u0e48\u0e21</div></div>`
+      : g.transactions.map(t => transactionRowHtml(t, g.currency)).join('')}
+  </div>`;
+}
+
+function renderHistoryTab() {
+  if (state.bills.length === 0) {
+    return `<div class="cb-empty" style="padding-top:60px">
+      ${icon('history', 28)}
+      <div style="font-size:13px;margin-top:8px">\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e21\u0e35\u0e1a\u0e34\u0e25\u0e17\u0e35\u0e48\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01\u0e44\u0e27\u0e49</div>
+      <div style="font-size:12px;margin-top:4px">\u0e01\u0e14\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01\u0e17\u0e35\u0e48\u0e41\u0e17\u0e47\u0e1a "\u0e1a\u0e34\u0e25" \u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e40\u0e01\u0e47\u0e1a\u0e44\u0e27\u0e49\u0e14\u0e39\u0e17\u0e35\u0e2b\u0e25\u0e31\u0e07</div>
+    </div>`;
+  }
+  return `<div style="display:flex;flex-direction:column;gap:10px">
+    <button class="cb-btn-ghost" style="color:var(--owe);border-color:var(--owe)" data-action="delete-all-history">${icon('trash', 14)} \u0e25\u0e1a\u0e1a\u0e34\u0e25\u0e17\u0e31\u0e49\u0e07\u0e2b\u0e21\u0e14\u0e43\u0e19\u0e1b\u0e23\u0e30\u0e27\u0e31\u0e15\u0e34</button>
+    ${state.bills.map(b => {
+      const calc = calcBill(b);
+      const transactions = settleNets(calc.nets);
+      const isOpen = state.historyOpenId === b.id;
+      return `<div class="cb-card">
+        <button data-action="toggle-history-open" data-id="${b.id}" style="display:flex;justify-content:space-between;align-items:center;width:100%;background:transparent;border:none;color:var(--ink);padding:0">
+          <div style="text-align:left">
+            <div style="font-weight:700;font-size:14px">${escapeHtml(b.billName)}</div>
+            <div style="font-size:11px;color:var(--ink-dim);margin-top:2px">${new Date(b.createdAt).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' })} \u00b7 ${b.items.length} \u0e23\u0e32\u0e22\u0e01\u0e32\u0e23</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="cb-mono" style="font-weight:700">${fmt(calc.grandTotal, b.currency)}</span>
+            <span style="display:flex;color:var(--ink-dim);${isOpen ? 'transform:rotate(180deg)' : ''}">${icon('chevronDown', 16)}</span>
+          </div>
+        </button>
+        ${isOpen ? `<div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
+          <div class="cb-dashed" style="border-color:var(--line)"></div>
+          ${receiptLineHtml('\u0e22\u0e2d\u0e14\u0e23\u0e27\u0e21\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23', fmt(calc.subtotal, b.currency))}
+          ${receiptLineHtml('Service charge', fmt(calc.sc, b.currency))}
+          ${receiptLineHtml('VAT', fmt(calc.vat, b.currency))}
+          ${calc.discount > 0 ? receiptLineHtml('\u0e2a\u0e48\u0e27\u0e19\u0e25\u0e14', '-' + fmt(calc.discount, b.currency)) : ''}
+          <div style="display:flex;justify-content:space-between;font-weight:700;font-size:13px">
+            <span>\u0e23\u0e27\u0e21\u0e17\u0e31\u0e49\u0e07\u0e2b\u0e21\u0e14</span><span class="cb-mono">${fmt(calc.grandTotal, b.currency)}</span>
+          </div>
+          <div class="cb-dashed" style="border-color:var(--line)"></div>
+          ${transactions.length === 0
+            ? `<div style="font-size:12px;color:var(--ink-dim)">\u0e17\u0e38\u0e01\u0e04\u0e19\u0e08\u0e48\u0e32\u0e22\u0e25\u0e07\u0e15\u0e31\u0e27\u0e1e\u0e2d\u0e14\u0e35</div>`
+            : transactions.map(t => `<div style="display:flex;align-items:center;justify-content:space-between;font-size:12.5px">
+                <span><span style="color:var(--owe);font-weight:600">${escapeHtml(t.from)}</span> \u2192 <span style="color:var(--get);font-weight:600">${escapeHtml(t.to)}</span></span>
+                <span class="cb-mono">${fmt(t.amount, b.currency)}</span>
+              </div>`).join('')}
+          <button class="cb-btn-ghost" style="color:var(--owe);border-color:var(--owe);margin-top:6px" data-action="delete-history-bill" data-id="${b.id}">${icon('trash', 14)} \u0e25\u0e1a\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23\u0e19\u0e35\u0e49</button>
+        </div>` : ''}
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+// ---------------------------------------------------------------------------
+// Sheet (add/edit item, person customize)
+// ---------------------------------------------------------------------------
+function renderItemSheet() {
+  const s = state.sheet;
+  const f = s.form;
+  const bill = state.currentBill;
+  return `
+  <div class="cb-sheet-overlay">
+    <div class="cb-sheet">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <div style="font-size:16px;font-weight:700">${s.mode === 'new' ? '\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23' : '\u0e41\u0e01\u0e49\u0e44\u0e02\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23'}</div>
+        <button data-action="close-sheet" style="background:transparent;border:none;color:var(--ink)">${icon('x', 20)}</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div>
+          <div class="cb-label">\u0e0a\u0e37\u0e48\u0e2d\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23</div>
+          <input class="cb-input" placeholder="\u0e40\u0e0a\u0e48\u0e19 \u0e1c\u0e31\u0e14\u0e01\u0e30\u0e40\u0e1e\u0e23\u0e32\u0e2b\u0e21\u0e39\u0e2a\u0e31\u0e1a" data-bind="sheet.form.name" value="${escapeHtml(f.name)}" autofocus />
+        </div>
+        <div>
+          <div class="cb-label">\u0e23\u0e32\u0e04\u0e32 (${currencyMeta(bill.currency).symbol})</div>
+          <input class="cb-input cb-mono" type="number" inputmode="decimal" placeholder="0.00" data-bind="sheet.form.price" value="${f.price}" />
+        </div>
+        <div>
+          <div class="cb-label">\u0e2b\u0e32\u0e23\u0e01\u0e31\u0e1a\u0e43\u0e04\u0e23</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            ${bill.people.map(p => `<button class="cb-chip ${f.splitWith.includes(p.id) ? 'selected' : ''}" data-action="toggle-sheet-person" data-id="${p.id}">
+              ${avatarHtml(p, 20)}
+              ${escapeHtml(p.name)} ${f.splitWith.includes(p.id) ? icon('check', 13) : ''}
+            </button>`).join('')}
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:6px">
+          ${s.mode === 'edit' ? `<button class="cb-btn-ghost" style="color:var(--owe);border-color:var(--owe)" data-action="delete-item" data-id="${f.id}">${icon('trash', 15)} \u0e25\u0e1a</button>` : ''}
+          <button class="cb-btn-primary" data-action="save-sheet">${icon('check', 16)} \u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderPersonSheet() {
+  const f = state.sheet.form;
+  return `
+  <div class="cb-sheet-overlay">
+    <div class="cb-sheet">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div style="font-size:16px;font-weight:700">\u0e1b\u0e23\u0e31\u0e1a\u0e41\u0e15\u0e48\u0e07\u0e2b\u0e19\u0e49\u0e32\u0e15\u0e32 \u00b7 ${escapeHtml(f.name)}</div>
+        <button data-action="close-sheet" style="background:transparent;border:none;color:var(--ink)">${icon('x', 20)}</button>
+      </div>
+      <div style="display:flex;justify-content:center;margin:10px 0 18px">
+        ${avatarHtml(f, 60)}
+      </div>
+      <div class="cb-label">\u0e2a\u0e35\u0e1b\u0e23\u0e30\u0e08\u0e33\u0e15\u0e31\u0e27</div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin:6px 0 16px">
+        ${COLOR_OPTIONS.map(c => `<button data-action="set-person-color" data-id="${f.id}" data-color="${c}" style="width:34px;height:34px;border-radius:999px;background:${c};border:${f.color === c ? '3px solid var(--ink)' : '2px solid var(--line)'};padding:0"></button>`).join('')}
+      </div>
+      <div class="cb-label">\u0e2d\u0e35\u0e42\u0e21\u0e08\u0e34\u0e1b\u0e23\u0e30\u0e08\u0e33\u0e15\u0e31\u0e27</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px">
+        <button data-action="set-person-emoji" data-id="${f.id}" data-emoji="" class="cb-chip ${!f.emoji ? 'selected' : ''}" style="width:38px;height:38px;justify-content:center;padding:0;font-size:13px;font-weight:700">Aa</button>
+        ${EMOJI_OPTIONS.map(e => `<button data-action="set-person-emoji" data-id="${f.id}" data-emoji="${e}" class="cb-chip ${f.emoji === e ? 'selected' : ''}" style="width:38px;height:38px;justify-content:center;padding:0;font-size:18px">${e}</button>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ---------------------------------------------------------------------------
+// Header / Nav / Root render
+// ---------------------------------------------------------------------------
+function renderHeader() {
+  return `
+  <div class="cb-header">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="cb-logo">${icon('receipt', 17)}</div>
+        <span style="font-weight:700;font-size:16px;letter-spacing:-0.01em">\u0e40\u0e04\u0e25\u0e35\u0e22\u0e23\u0e4c\u0e1a\u0e34\u0e25 \u{1F49E}</span>
+      </div>
+      <button class="cb-btn-ghost" data-action="new-bill" style="padding:6px 10px;width:auto">
+        ${icon('rotate', 13)}<span>\u0e1a\u0e34\u0e25\u0e43\u0e2b\u0e21\u0e48</span>
+      </button>
+    </div>
+  </div>`;
+}
+
+function renderNav() {
+  const tabs = [
+    { id: 'bill', label: '\u0e1a\u0e34\u0e25', icon: 'wallet' },
+    { id: 'aggregate', label: '\u0e2a\u0e23\u0e38\u0e1b\u0e23\u0e27\u0e21', icon: 'receipt' },
+    { id: 'history', label: '\u0e1b\u0e23\u0e30\u0e27\u0e31\u0e15\u0e34', icon: 'history' },
+  ];
+  return `<div class="cb-nav">${tabs.map(t => `
+    <button class="cb-nav-btn ${state.tab === t.id ? 'active' : ''}" data-action="set-tab" data-tab="${t.id}">
+      ${icon(t.icon, 20)}<span>${t.label}</span>
+    </button>`).join('')}</div>`;
+}
+
+function renderTabContent() {
+  if (state.tab === 'aggregate') return renderAggregateTab();
+  if (state.tab === 'history') return renderHistoryTab();
+  return renderBillTab();
+}
+
+function render() {
+  const app = document.getElementById('app');
+  let sheetHtml = '';
+  if (state.sheet) {
+    sheetHtml = state.sheet.mode === 'person' ? renderPersonSheet() : renderItemSheet();
+  }
+  app.innerHTML = `
+    <div class="cb-shell">
+      ${renderHeader()}
+      <div class="cb-content">${renderTabContent()}</div>
+      ${renderNav()}
+    </div>
+    ${sheetHtml}
+    ${state.toast ? `<div class="cb-toast">${escapeHtml(state.toast)}</div>` : ''}
+  `;
+  if (state.toast) {
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { state.toast = null; render(); }, 2200);
+  }
+  const sheetInput = app.querySelector('.cb-sheet input');
+  if (sheetInput) sheetInput.focus({ preventScroll: true });
+}
+
+// ---------------------------------------------------------------------------
+// Event handling
+// ---------------------------------------------------------------------------
+document.addEventListener('click', function (e) {
+  const btn = e.target.closest('[data-action]');
+  if (!btn) return;
+  const action = btn.dataset.action;
+  const id = btn.dataset.id;
+
+  switch (action) {
+    case 'new-bill': {
+      const firstContact = state.contacts[0] || { name: '\u0e09\u0e31\u0e19' };
+      const person = { id: newId('p'), name: firstContact.name, color: firstContact.color, emoji: firstContact.emoji };
+      state.currentBill = defaultBill([person]);
+      state.billSummaryOpen = false;
+      state.toast = '\u0e40\u0e23\u0e34\u0e48\u0e21\u0e1a\u0e34\u0e25\u0e43\u0e2b\u0e21\u0e48\u0e41\u0e25\u0e49\u0e27';
+      break;
+    }
+
+    case 'set-tab':
+      state.tab = btn.dataset.tab;
+      if (state.tab === 'aggregate' && state.selectedBillIds === null) {
+        state.selectedBillIds = state.bills.map(b => b.id);
+      }
+      break;
+
+    case 'add-person': {
+      const name = (state.newPersonName || '').trim();
+      if (!name) return;
+      const key = name.toLowerCase();
+      let contact = state.contacts.find(c => c.name.trim().toLowerCase() === key);
+      if (!contact) {
+        contact = { id: newId('c'), name };
+        state.contacts.push(contact);
+      }
+      const alreadyInBill = state.currentBill.people.some(p => p.name.trim().toLowerCase() === key);
+      if (!alreadyInBill) {
+        state.currentBill.people.push({ id: newId('p'), name: contact.name, color: contact.color, emoji: contact.emoji });
+      }
+      state.newPersonName = '';
+      break;
+    }
+
+    case 'add-contact-to-bill': {
+      const contact = state.contacts.find(c => c.id === id);
+      if (!contact) return;
+      const key = contact.name.trim().toLowerCase();
+      if (state.currentBill.people.some(p => p.name.trim().toLowerCase() === key)) return;
+      state.currentBill.people.push({ id: newId('p'), name: contact.name, color: contact.color, emoji: contact.emoji });
+      break;
+    }
+
+    case 'remove-contact':
+      state.contacts = state.contacts.filter(c => c.id !== id);
+      break;
+
+    case 'remove-person':
+      if (state.currentBill.people.length <= 1) return;
+      state.currentBill.people = state.currentBill.people.filter(p => p.id !== id);
+      state.currentBill.items.forEach(it => {
+        it.splitWith = it.splitWith.filter(pid => pid !== id);
+      });
+      if (state.currentBill.ownerId === id) {
+        state.currentBill.ownerId = state.currentBill.people[0].id;
+      }
+      break;
+
+    case 'set-owner':
+      state.currentBill.ownerId = id;
+      break;
+
+    case 'open-person-customize': {
+      const p = state.currentBill.people.find(x => x.id === id);
+      if (!p) return;
+      state.sheet = { mode: 'person', form: { id: p.id, name: p.name, color: p.color || colorFor(p.id), emoji: p.emoji || '' } };
+      break;
+    }
+
+    case 'set-person-color': {
+      const color = btn.dataset.color;
+      const p = state.currentBill.people.find(x => x.id === id);
+      if (p) { p.color = color; syncContactStyle(p); }
+      if (state.sheet) state.sheet.form.color = color;
+      break;
+    }
+
+    case 'set-person-emoji': {
+      const emoji = btn.dataset.emoji || '';
+      const p = state.currentBill.people.find(x => x.id === id);
+      if (p) { p.emoji = emoji; syncContactStyle(p); }
+      if (state.sheet) state.sheet.form.emoji = emoji;
+      break;
+    }
+
+    case 'open-new-item':
+      state.sheet = { mode: 'new', form: { id: null, name: '', price: '', splitWith: state.currentBill.people.map(p => p.id) } };
+      break;
+
+    case 'open-edit-item': {
+      const it = state.currentBill.items.find(x => x.id === id);
+      if (!it) return;
+      state.sheet = { mode: 'edit', form: Object.assign({}, it, { splitWith: it.splitWith.slice() }) };
+      break;
+    }
+
+    case 'close-sheet':
+      state.sheet = null;
+      break;
+
+    case 'save-sheet': {
+      const f = state.sheet.form;
+      const name = (f.name || '').trim() || '\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23';
+      const price = parseFloat(f.price) || 0;
+      const splitWith = f.splitWith.length > 0 ? f.splitWith : state.currentBill.people.map(p => p.id);
+      if (state.sheet.mode === 'new') {
+        state.currentBill.items.push({ id: newId('it'), name, price, splitWith });
+      } else {
+        const idx = state.currentBill.items.findIndex(x => x.id === f.id);
+        if (idx > -1) state.currentBill.items[idx] = Object.assign({}, state.currentBill.items[idx], { name, price, splitWith });
+      }
+      state.sheet = null;
+      break;
+    }
+
+    case 'delete-item':
+      state.currentBill.items = state.currentBill.items.filter(x => x.id !== id);
+      if (state.sheet && state.sheet.form && state.sheet.form.id === id) state.sheet = null;
+      break;
+
+    case 'toggle-sheet-person': {
+      const f = state.sheet.form;
+      f.splitWith = f.splitWith.includes(id) ? f.splitWith.filter(x => x !== id) : f.splitWith.concat([id]);
+      break;
+    }
+
+    case 'toggle-vat': state.currentBill.vatEnabled = !state.currentBill.vatEnabled; break;
+    case 'toggle-sc': state.currentBill.scEnabled = !state.currentBill.scEnabled; break;
+    case 'set-currency': state.currentBill.currency = btn.dataset.code; break;
+    case 'clear-items': state.currentBill.items = []; state.toast = '\u0e25\u0e49\u0e32\u0e07\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23\u0e17\u0e31\u0e49\u0e07\u0e2b\u0e21\u0e14\u0e41\u0e25\u0e49\u0e27'; break;
+    case 'toggle-bill-summary': state.billSummaryOpen = !state.billSummaryOpen; break;
+
+    case 'save-current-bill': {
+      const clone = JSON.parse(JSON.stringify(state.currentBill));
+      if (!clone.id) {
+        clone.id = newId('b');
+        clone.createdAt = Date.now();
+        state.currentBill.id = clone.id;
+        state.currentBill.createdAt = clone.createdAt;
+        state.bills.unshift(clone);
+      } else {
+        const idx = state.bills.findIndex(x => x.id === clone.id);
+        if (idx > -1) state.bills[idx] = clone; else state.bills.unshift(clone);
+      }
+      state.toast = '\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01\u0e1a\u0e34\u0e25\u0e41\u0e25\u0e49\u0e27';
+      break;
+    }
+
+    case 'toggle-bill-selection': {
+      const sel = state.selectedBillIds === null ? state.bills.map(b => b.id) : state.selectedBillIds.slice();
+      const idx = sel.indexOf(id);
+      if (idx > -1) sel.splice(idx, 1); else sel.push(id);
+      state.selectedBillIds = sel;
+      break;
+    }
+
+    case 'select-all-bills': state.selectedBillIds = state.bills.map(b => b.id); break;
+    case 'select-none-bills': state.selectedBillIds = []; break;
+    case 'toggle-history-open': state.historyOpenId = state.historyOpenId === id ? null : id; break;
+
+    case 'delete-history-bill':
+      state.bills = state.bills.filter(b => b.id !== id);
+      if (state.currentBill.id === id) state.currentBill.id = null;
+      if (state.selectedBillIds) state.selectedBillIds = state.selectedBillIds.filter(x => x !== id);
+      if (state.historyOpenId === id) state.historyOpenId = null;
+      break;
+
+    case 'delete-all-history': {
+      if (!confirm('\u0e25\u0e1a\u0e1a\u0e34\u0e25\u0e17\u0e31\u0e49\u0e07\u0e2b\u0e21\u0e14\u0e43\u0e19\u0e1b\u0e23\u0e30\u0e27\u0e31\u0e15\u0e34? \u0e01\u0e32\u0e23\u0e01\u0e23\u0e30\u0e17\u0e33\u0e19\u0e35\u0e49\u0e22\u0e49\u0e2d\u0e19\u0e01\u0e25\u0e31\u0e1a\u0e44\u0e21\u0e48\u0e44\u0e14\u0e49')) return;
+      state.bills = [];
+      state.selectedBillIds = [];
+      state.historyOpenId = null;
+      if (state.currentBill.id) state.currentBill.id = null;
+      state.toast = '\u0e25\u0e1a\u0e1b\u0e23\u0e30\u0e27\u0e31\u0e15\u0e34\u0e17\u0e31\u0e49\u0e07\u0e2b\u0e21\u0e14\u0e41\u0e25\u0e49\u0e27';
+      break;
+    }
+
+    default: return;
+  }
+  saveState();
+  render();
+});
+
+document.addEventListener('change', function (e) {
+  const elm = e.target;
+  const path = elm.dataset && elm.dataset.bind;
+  if (!path) return;
+  let value = elm.value;
+  if (elm.type === 'number') value = parseFloat(value) || 0;
+  setPath(state, path, value);
+  saveState();
+  render();
+});
+
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Enter' && e.target && e.target.id === 'new-person-input') {
+    e.preventDefault();
+    const name = (e.target.value || '').trim();
+    if (!name) return;
+    const key = name.toLowerCase();
+    let contact = state.contacts.find(c => c.name.trim().toLowerCase() === key);
+    if (!contact) {
+      contact = { id: newId('c'), name };
+      state.contacts.push(contact);
+    }
+    const alreadyInBill = state.currentBill.people.some(p => p.name.trim().toLowerCase() === key);
+    if (!alreadyInBill) {
+      state.currentBill.people.push({ id: newId('p'), name: contact.name, color: contact.color, emoji: contact.emoji });
+    }
+    state.newPersonName = '';
+    saveState();
+    render();
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Init
+// ---------------------------------------------------------------------------
+render();
+</script>
+</body>
+</html>
